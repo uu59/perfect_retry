@@ -1,4 +1,14 @@
 language: ruby
 rvm:
-  - 2.2.2
+  - 1.9.3
+  - 2.0.0
+  - 2.1
+  - 2.2.3
+  - jruby-19mode
+  - jruby-9.0.0.0
+  - jruby-head
+  - ruby-head
+
+sudo: false
+
 before_install: gem install bundler -v 1.10.6
