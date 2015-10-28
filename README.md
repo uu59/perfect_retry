@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/uu59/perfect_retry.svg?branch=master)](https://travis-ci.org/uu59/perfect_retry)
+[![Code Climate](https://codeclimate.com/github/uu59/perfect_retry/badges/gpa.svg)](https://codeclimate.com/github/uu59/perfect_retry)
+[![Test Coverage](https://codeclimate.com/github/uu59/perfect_retry/badges/coverage.svg)](https://codeclimate.com/github/uu59/perfect_retry/coverage)
+
 # PerfectRetry
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/perfect_retry`. To experiment with that code, run `bin/console` for an interactive prompt.
