@@ -11,4 +11,8 @@ rvm:
 
 sudo: false
 
+addons:
+  code_climate:
+      repo_token: 0ddf2a14a01d14b70843d9ad37ce4e7f1ff7edd7c08aec35d5d830299342850d
+
 before_install: gem install bundler -v 1.10.6
