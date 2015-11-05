@@ -4,11 +4,76 @@
 
 # PerfectRetry
 
-**THIS IS UNDER THE DEVELOPMENT**
+Implement to handle retry kit.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/perfect_retry`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Usage and Config
 
-TODO: Delete this and the text above, and describe your gem
+```ruby
+PerfectRetry.with_retry do
+  do_something_have_possibilities_errors_task()
+end
+```
+
+```ruby
+# in setup.rb
+
+require "timeout"
+
+PerfectRetry.register(:timeout_handling) do |config|
+  # Try 4 times retry.
+  # default: 3
+  config.limit = 4
+
+  # Rescue these error in a block.
+  # default: [StandardError]
+  config.rescues = [Timeout::Error, StandardError]
+
+  # Sleep this seconds before next retry. `n` is a retry times (1-origin).
+  # default: proc{|n| n ** 2}
+  config.sleep = proc{|n| n * 5 }
+
+  # Logger for something information e.g. '[2/5] Retrying after 3 seconds blah blah'.
+  # default: Logger.new(STDERR)
+  config.logger = Logger.new("/var/log/agent.log")
+
+  # Ensure block. Call this block after with_retry block finished with and without any errors.
+  # default: proc {}
+  config.ensure = proc { puts "finished" }
+end
+
+# in main.rb
+
+require "open-uri"
+
+PerfectRetry.new(:timeout_handling).with_retry do
+  open("http://example.com")
+end
+
+# or
+
+PerfectRetry.with_retry(:timeout_handling) do
+  open("http://example.com")
+end
+```
+
+### Manually retry 
+
+```ruby
+PerfectRetry.register(:dont_retry_automatically) do |config|
+  config.limit = 0
+end
+
+PerfectRetry.with_retry(:dont_retry_automatically) do
+  response = HTTPClient.get("http://example.com")
+  if response.code == 500
+    sleep 3
+    throw :retry
+  end
+end
+```
+
+`throw :retry` redo the block at first without `config.limit` checking. In above case, infinity retry while example.com returns 500.
+
 
 ## Installation
 
@@ -26,20 +91,10 @@ Or install it yourself as:
 
     $ gem install perfect_retry
 
-## Usage
+# See also
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/perfect_retry.
-
+- [retryable](https://github.com/nfedyashev/retryable)
+- [retry-handler](https://github.com/kimoto/retry-handler)
 
 ## License
 
