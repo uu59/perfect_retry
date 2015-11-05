@@ -49,12 +49,7 @@ class PerfectRetry
   def with_retry(&block)
     count = 0
     begin
-      proc do
-        catch(:retry) do
-          return block.call(count)
-        end
-        redo # reached here only `throw :retry` called in a block
-      end.call
+      retry_with_catch(count, &block)
     rescue *config.rescues => e
       if should_retry?(count)
         count += 1
@@ -76,5 +71,17 @@ class PerfectRetry
   def should_retry?(count)
     return true unless config.limit
     count < config.limit
+  end
+
+  private
+
+  def retry_with_catch(count, &block)
+    proc do
+      catch(:retry) do
+        return block.call(count)
+      end
+
+      redo # reached here only `throw :retry` called in a block
+    end.call
   end
 end

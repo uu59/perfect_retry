@@ -4,10 +4,11 @@ describe PerfectRetry do
   describe "register config" do
     after { PerfectRetry.deregister_all }
 
-    it do
+    it "register and deregister" do
       PerfectRetry.register(:foo) do |conf|
         conf.limit = 3
       end
+
       aggregate_failures do
         expect(PerfectRetry.registered_config_all.to_a.length).to eq 1
         expect(PerfectRetry.registered_config(:foo).limit).to eq 3
@@ -99,7 +100,7 @@ describe PerfectRetry do
         end
       }
 
-      context "logging retry count" do
+      context "logging retry limit" do
         before { pr.config.limit = limit }
 
         context "natural number" do
@@ -141,6 +142,12 @@ describe PerfectRetry do
 
         it "'Retrying'" do
           expect(pr.config.logger).to receive(:warn).with(/Retrying/).exactly(pr.config.limit).times
+        end
+
+        it "Retry count number" do
+          pr.config.limit.times do |n|
+            expect(pr.config.logger).to receive(:warn).with(/\[#{n + 1}\/#{pr.config.limit}\]/)
+          end
         end
       end
     end
