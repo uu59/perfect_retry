@@ -24,12 +24,6 @@ describe PerfectRetry do
         end
       }
 
-      it "logging 'Retrying'" do
-        expect(pr.config.logger).to receive(:warn).with(/Retrying/).exactly(pr.config.limit).times
-
-        expect { subject }.to raise_error(PerfectRetry::TooManyRetry)
-      end
-
       context "logging retry count" do
         before { pr.config.limit = limit }
 
@@ -59,16 +53,20 @@ describe PerfectRetry do
         end
       end
 
-      it "logging error message" do
-        expect(pr.config.logger).to receive(:warn).with(/#{error_message}/).exactly(pr.config.limit).times
+      describe "log message" do
+        after { expect { subject }.to raise_error(PerfectRetry::TooManyRetry) }
 
-        expect { subject }.to raise_error(PerfectRetry::TooManyRetry)
-      end
+        it "exception message" do
+          expect(pr.config.logger).to receive(:warn).with(/#{error_message}/).exactly(pr.config.limit).times
+        end
 
-      it "logging error type" do
-        expect(pr.config.logger).to receive(:warn).with(/#{error_type}/).exactly(pr.config.limit).times
+        it "exception type(class)" do
+          expect(pr.config.logger).to receive(:warn).with(/#{error_type}/).exactly(pr.config.limit).times
+        end
 
-        expect { subject }.to raise_error(PerfectRetry::TooManyRetry)
+        it "'Retrying'" do
+          expect(pr.config.logger).to receive(:warn).with(/Retrying/).exactly(pr.config.limit).times
+        end
       end
     end
   end
