@@ -14,12 +14,22 @@ class PerfectRetry
     ensure: lambda{},
   }.freeze
 
-  def self.with_retry(&block)
-    new.with_retry(&block)
+  def self.with_retry(config_key = nil, &block)
+    new(config_key).with_retry(&block)
   end
 
   def self.register(name, &block)
-    REGISTERED_CONFIG[name] = block.call(Config.new)
+    config = Config.create_from_hash(DEFAULTS)
+    block.call(config)
+    REGISTERED_CONFIG[name] = config
+  end
+
+  def self.registered_config_all
+    REGISTERED_CONFIG
+  end
+
+  def self.registered_config(key)
+    REGISTERED_CONFIG[key]
   end
 
   def self.deregister_all
@@ -33,24 +43,22 @@ class PerfectRetry
   end
 
   def default_config
-    config = Config.new
-    DEFAULTS.each do |k, v|
-      config.send("#{k}=", v)
-    end
-    config
+    Config.create_from_hash(DEFAULTS)
   end
 
   def with_retry(&block)
     count = 0
     begin
-      catch(:retry) do
-        block.call(count)
-      end
+      proc do
+        catch(:retry) do
+          return block.call(count)
+        end
+        redo # reached here only `throw :retry` called in a block
+      end.call
     rescue *config.rescues => e
-      config.logger.warn "[#{count + 1}/#{config.limit || "Infinitiy"}] Retrying after #{config.sleep_sec(count)} seconds. Ocurred: #{e}(#{e.class})"
-
-      count += 1
-      if retry?(count)
+      if should_retry?(count)
+        count += 1
+        config.logger.warn "[#{count}/#{config.limit || "Infinitiy"}] Retrying after #{config.sleep_sec(count)} seconds. Ocurred: #{e}(#{e.class})"
         sleep_before_retry(count)
         retry
       end
@@ -65,7 +73,7 @@ class PerfectRetry
     sleep config.sleep_sec(count)
   end
 
-  def retry?(count)
+  def should_retry?(count)
     return true unless config.limit
     count < config.limit
   end

@@ -1,12 +1,87 @@
 require 'spec_helper'
 
 describe PerfectRetry do
+  describe "register config" do
+    after { PerfectRetry.deregister_all }
+
+    it do
+      PerfectRetry.register(:foo) do |conf|
+        conf.limit = 3
+      end
+      aggregate_failures do
+        expect(PerfectRetry.registered_config_all.to_a.length).to eq 1
+        expect(PerfectRetry.registered_config(:foo).limit).to eq 3
+
+        PerfectRetry.deregister_all
+
+        expect(PerfectRetry.registered_config_all.to_a.length).to eq 0
+        expect(PerfectRetry.registered_config(:foo)).to eq nil
+      end
+    end
+  end
+
   describe "#with_retry" do
     it 'return block value' do
       ret = PerfectRetry.with_retry do
         42
       end
       expect(ret).to eq 42
+    end
+
+    describe "raise and retry" do
+      let(:retry_limit) { 4 }
+
+      before do
+        PerfectRetry.register(:all_exception) do |conf|
+          conf.sleep = lambda{|n| n }
+          conf.limit = retry_limit
+          conf.rescues = [Exception]
+          conf.logger = Logger.new(File::NULL)
+        end
+      end
+      after { PerfectRetry.deregister_all }
+
+      describe "sleep time" do
+        let(:pr) { PerfectRetry.new(:all_exception) }
+
+        it do
+          retry_limit.times do |n|
+            expect(pr).to receive(:sleep_before_retry).with(n + 1)
+          end
+
+          expect {
+            pr.with_retry do
+              raise "foo"
+            end
+          }.to raise_error(PerfectRetry::TooManyRetry)
+        end
+      end
+    end
+
+    describe "retry manually" do
+      before do
+        PerfectRetry.register(:no_retry) do |conf|
+          conf.limit = 0
+        end
+      end
+
+      it "couldn't affect config.limit" do
+        count = 5
+
+        d1 = double("dummy1")
+        d2 = double("dummy2")
+        expect(d1).to receive(:call).exactly(count)
+        expect(d2).to receive(:call).exactly(1)
+
+        expect {
+          PerfectRetry.with_retry(:no_retry) do
+            d1.call()
+            throw :retry if (count -= 1) > 0
+            d2.call()
+            raise "foo"
+          end
+        }.to raise_error(PerfectRetry::TooManyRetry)
+      end
     end
 
     describe "logger" do
