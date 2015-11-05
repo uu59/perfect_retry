@@ -53,7 +53,7 @@ describe PerfectRetry do
         end
       end
 
-      describe "log message" do
+      describe "log message content" do
         after { expect { subject }.to raise_error(PerfectRetry::TooManyRetry) }
 
         it "exception message" do
