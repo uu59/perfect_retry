@@ -59,6 +59,37 @@ describe PerfectRetry do
       end
     end
 
+    describe "ensure" do
+      let(:ensure_double) { double("ensure") }
+      let(:pr) { PerfectRetry.new(:test_ensure) }
+
+      before do
+        PerfectRetry.register(:test_ensure) do |config|
+          config.ensure = proc{ ensure_double.call() }
+          config.logger = Logger.new(File::NULL)
+          config.sleep = proc{|n| 0 }
+        end
+      end
+
+      it "without error" do
+        expect(ensure_double).to receive(:call).once
+
+        pr.with_retry { 1 }
+      end
+
+      it "with error and reached retry limit" do
+        expect(ensure_double).to receive(:call).once
+
+        expect { pr.with_retry { raise "foo" } }.to raise_error(PerfectRetry::TooManyRetry)
+      end
+
+      it "with uncaught error" do
+        expect(ensure_double).to receive(:call).once
+
+        expect { pr.with_retry { raise Exception, "foo" } }.to raise_error(Exception)
+      end
+    end
+
     describe "retry manually" do
       before do
         PerfectRetry.register(:no_retry) do |conf|
