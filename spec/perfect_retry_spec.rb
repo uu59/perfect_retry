@@ -21,6 +21,24 @@ describe PerfectRetry do
     end
   end
 
+  describe "#initialize" do
+    it "use default without arguments" do
+      pr = PerfectRetry.new
+      aggregate_failures do
+        PerfectRetry::DEFAULTS.each do |k,v|
+          expect(pr.config.send(k)).to eq v
+        end
+      end
+    end
+
+    it "configure with block" do
+      pr = PerfectRetry.new do |config|
+        config.limit = 99
+      end
+      expect(pr.config.limit).to eq 99
+    end
+  end
+
   describe "#with_retry" do
     it 'return block value' do
       ret = PerfectRetry.with_retry do

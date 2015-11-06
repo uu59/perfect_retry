@@ -38,8 +38,9 @@ class PerfectRetry
 
   attr_reader :config
 
-  def initialize(config_key = nil)
+  def initialize(config_key = nil, &block)
     @config = REGISTERED_CONFIG[config_key] || default_config
+    block.call(@config) if block_given?
   end
 
   def default_config
