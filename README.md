@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/uu59/perfect_retry.svg?branch=master)](https://travis-ci.org/uu59/perfect_retry)
 [![Code Climate](https://codeclimate.com/github/uu59/perfect_retry/badges/gpa.svg)](https://codeclimate.com/github/uu59/perfect_retry)
 [![Test Coverage](https://codeclimate.com/github/uu59/perfect_retry/badges/coverage.svg)](https://codeclimate.com/github/uu59/perfect_retry/coverage)
+[![Gem Version](https://badge.fury.io/rb/perfect_retry.svg)](https://badge.fury.io/rb/perfect_retry)
 
 # PerfectRetry
 
