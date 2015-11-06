@@ -29,6 +29,7 @@ PerfectRetry.register(:timeout_handling) do |config|
   config.rescues = [Timeout::Error, StandardError]
 
   # Sleep this seconds before next retry. `n` is a retry times (1-origin).
+  # Infinity retry if `nil` is set.
   # default: proc{|n| n ** 2}
   config.sleep = proc{|n| n * 5 }
 
@@ -55,6 +56,30 @@ PerfectRetry.with_retry(:timeout_handling) do
   open("http://example.com")
 end
 ```
+
+### Custom config without register
+
+```ruby
+pr = PerfectRetry.new do |config|
+  # based on default config
+  config.sleep = 1
+  config.rescues = [Timeout::Error]
+end
+
+pr.with_retry do
+  open("http://example.com")
+end
+
+# Also you can extend registered config
+pr = PerfectRetry.new(:some_registered) do |config|
+  config.ensure = proc{ puts "done" }
+end
+
+pr.with_retry do
+  # something to do
+end
+```
+
 
 ### Manually retry 
 
