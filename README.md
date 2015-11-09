@@ -29,6 +29,10 @@ PerfectRetry.register(:timeout_handling) do |config|
   # default: [StandardError]
   config.rescues = [Timeout::Error, StandardError]
 
+  # Don't rescue, don't retry when these error raised.
+  # default: []
+  config.dont_rescues = [SyntaxError]
+
   # Sleep this seconds before next retry. `n` is a retry times (1-origin).
   # Infinity retry if `nil` is set.
   # default: proc{|n| n ** 2}

@@ -1,7 +1,7 @@
 require "logger"
 
 class PerfectRetry
-  class Config < Struct.new(:limit, :rescues, :logger, :sleep, :ensure)
+  class Config < Struct.new(:limit, :rescues, :dont_rescues, :logger, :sleep, :ensure)
     def self.create_from_hash(hash)
       config = new
       hash.each do |k, v|

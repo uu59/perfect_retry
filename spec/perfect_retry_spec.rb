@@ -77,6 +77,26 @@ describe PerfectRetry do
       end
     end
 
+    describe "dont_rescues" do
+      let(:error_class) { Class.new(StandardError) }
+      let(:pr) do
+        PerfectRetry.new do |config|
+          config.limit = 3
+          config.dont_rescues = [error_class]
+        end
+      end
+
+      it "Don't retry when dont_rescues error raised" do
+        expect(pr).to_not receive(:retry)
+
+        expect {
+          pr.with_retry do
+            raise error_class.new("error")
+          end
+        }.to raise_error(error_class)
+      end
+    end
+
     describe "ensure" do
       let(:ensure_double) { double("ensure") }
       let(:pr) { PerfectRetry.new(:test_ensure) }
