@@ -1,11 +1,6 @@
 require 'spec_helper'
 
 describe PerfectRetry do
-  def mute_logging(logger)
-    allow(logger).to receive(:warn)
-    allow(logger).to receive(:debug)
-  end
-
   describe "register config" do
     after { PerfectRetry.deregister_all }
 
@@ -22,6 +17,51 @@ describe PerfectRetry do
 
         expect(PerfectRetry.registered_config_all.to_a.length).to eq 0
         expect(PerfectRetry.registered_config(:foo)).to eq nil
+      end
+    end
+  end
+
+  describe "log level" do
+    let(:pr) {
+      PerfectRetry.new do |config|
+        config.log_level = level
+      end
+    }
+
+    context "Fixnum" do
+      let(:level) { 2 }
+
+      it { expect{ pr }.to_not raise_error }
+      it { expect(pr.config.logger.level).to eq level }
+    end
+
+    context "Symbol" do
+      context "known level" do
+        let(:level) { :warn }
+
+        it { expect{ pr }.to_not raise_error }
+        it { expect(pr.config.logger.level).to eq Logger::SEV_LABEL.index(level.to_s.upcase) }
+      end
+
+      context "unknown level" do
+        let(:level) { :foo }
+
+        it { expect{ pr }.to raise_error(StandardError, /Unknown.*#{level}/) }
+      end
+    end
+
+    context "String" do
+      context "known level" do
+        let(:level) { "warn" }
+
+        it { expect{ pr }.to_not raise_error }
+        it { expect(pr.config.logger.level).to eq Logger::SEV_LABEL.index(level.to_s.upcase) }
+      end
+
+      context "unknown level" do
+        let(:level) { "bar" }
+
+        it { expect{ pr }.to raise_error(StandardError, /Unknown.*#{level}/) }
       end
     end
   end
@@ -137,7 +177,6 @@ describe PerfectRetry do
       before do
         PerfectRetry.register(:no_retry) do |conf|
           conf.limit = 0
-          conf.logger = Logger.new(File::NULL)
         end
       end
 
@@ -166,7 +205,6 @@ describe PerfectRetry do
       let(:error_type) { StandardError }
 
       before do
-        mute_logging(pr.config.logger)
         pr.config.sleep = lambda{|n| 0}
       end
 
@@ -207,7 +245,8 @@ describe PerfectRetry do
 
       describe "log message content" do
         before do
-          mute_logging(pr.config.logger)
+          allow(pr.config.logger).to receive(:warn)
+          allow(pr.config.logger).to receive(:debug)
         end
 
         after { expect { subject }.to raise_error(PerfectRetry::TooManyRetry) }

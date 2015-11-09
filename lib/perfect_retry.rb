@@ -11,6 +11,7 @@ class PerfectRetry
     rescues: [StandardError],
     dont_rescues: [],
     logger: Logger.new(STDERR),
+    log_level: Logger::SEV_LABEL.index("INFO"),
     sleep: lambda{|n| n ** 2},
     ensure: lambda{},
   }.freeze
@@ -42,6 +43,7 @@ class PerfectRetry
   def initialize(config_key = nil, &block)
     @config = REGISTERED_CONFIG[config_key] || default_config
     block.call(@config) if block_given?
+    set_log_level(@config.log_level)
   end
 
   def default_config
@@ -82,6 +84,21 @@ class PerfectRetry
   end
 
   private
+
+  def set_log_level(level)
+    case level
+    when Fixnum
+      @config.logger.level = @config.log_level
+    when String, Symbol
+      if int = Logger::SEV_LABEL.index(level.to_s.upcase)
+        @config.logger.level = int
+      else
+        raise "Unknown log level '#{level}'(#{level.class})"
+      end
+    else
+      raise "Unknown log level '#{level}'(#{level.class})"
+    end
+  end
 
   def retry_with_catch(count, &block)
     proc do
