@@ -269,8 +269,7 @@ describe PerfectRetry do
           end
         end
 
-        it "backgrace" do
-
+        it "backtrace" do
           expect(pr.config.logger).to receive(:debug).with(/`with_retry'/).at_least(1)
         end
       end

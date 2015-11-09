@@ -88,7 +88,7 @@ class PerfectRetry
   def set_log_level(level)
     case level
     when Fixnum
-      @config.logger.level = @config.log_level
+      @config.logger.level = level
     when String, Symbol
       if int = Logger::SEV_LABEL.index(level.to_s.upcase)
         @config.logger.level = int
