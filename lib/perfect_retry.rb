@@ -9,6 +9,7 @@ class PerfectRetry
   DEFAULTS = {
     limit: 5,
     rescues: [StandardError],
+    dont_rescues: [],
     logger: Logger.new(STDERR),
     sleep: lambda{|n| n ** 2},
     ensure: lambda{},
@@ -51,6 +52,8 @@ class PerfectRetry
     count = 0
     begin
       retry_with_catch(count, &block)
+    rescue *config.dont_rescues => e
+      raise e
     rescue *config.rescues => e
       if should_retry?(count)
         count += 1
