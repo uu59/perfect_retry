@@ -10,6 +10,21 @@ class PerfectRetry
       config
     end
 
+    def set_log_level
+      case log_level
+      when Fixnum
+        logger.level = log_level
+      when String, Symbol
+        if int = Logger::SEV_LABEL.index(log_level.to_s.upcase)
+          logger.level = int
+        else
+          raise "Unknown log level '#{log_level}'(#{log_level.class})"
+        end
+      else
+        raise "Unknown log level '#{log_level}'(#{log_level.class})"
+      end
+    end
+
     def sleep_sec(count)
       if sleep.is_a?(Proc)
         sleep.call(count)

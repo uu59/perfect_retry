@@ -43,7 +43,7 @@ class PerfectRetry
   def initialize(config_key = nil, &block)
     @config = REGISTERED_CONFIG[config_key] || default_config
     block.call(@config) if block_given?
-    set_log_level(@config.log_level)
+    @config.set_log_level
   end
 
   def default_config
@@ -84,21 +84,6 @@ class PerfectRetry
   end
 
   private
-
-  def set_log_level(level)
-    case level
-    when Fixnum
-      @config.logger.level = level
-    when String, Symbol
-      if int = Logger::SEV_LABEL.index(level.to_s.upcase)
-        @config.logger.level = int
-      else
-        raise "Unknown log level '#{level}'(#{level.class})"
-      end
-    else
-      raise "Unknown log level '#{level}'(#{level.class})"
-    end
-  end
 
   def retry_with_catch(count, &block)
     proc do

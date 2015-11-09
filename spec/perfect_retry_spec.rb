@@ -21,48 +21,21 @@ describe PerfectRetry do
     end
   end
 
-  describe "log level" do
-    let(:pr) {
-      PerfectRetry.new do |config|
-        config.log_level = level
-      end
+  describe "set log level" do
+    let(:config) { PerfectRetry.registered_config(:test) }
+
+    before { 
+      PerfectRetry.register(:test){|config| }
     }
 
-    context "Fixnum" do
-      let(:level) { 2 }
-
-      it { expect{ pr }.to_not raise_error }
-      it { expect(pr.config.logger.level).to eq level }
+    it "call by PerfectRetry.new" do
+      expect(config).to receive(:set_log_level)
+      PerfectRetry.new(:test)
     end
 
-    context "Symbol" do
-      context "known level" do
-        let(:level) { :warn }
-
-        it { expect{ pr }.to_not raise_error }
-        it { expect(pr.config.logger.level).to eq Logger::SEV_LABEL.index(level.to_s.upcase) }
-      end
-
-      context "unknown level" do
-        let(:level) { :foo }
-
-        it { expect{ pr }.to raise_error(StandardError, /Unknown.*#{level}/) }
-      end
-    end
-
-    context "String" do
-      context "known level" do
-        let(:level) { "warn" }
-
-        it { expect{ pr }.to_not raise_error }
-        it { expect(pr.config.logger.level).to eq Logger::SEV_LABEL.index(level.to_s.upcase) }
-      end
-
-      context "unknown level" do
-        let(:level) { "bar" }
-
-        it { expect{ pr }.to raise_error(StandardError, /Unknown.*#{level}/) }
-      end
+    it "call by PerfectRetry.with_retry" do
+      expect(config).to receive(:set_log_level)
+      PerfectRetry.with_retry(:test) {}
     end
   end
 
