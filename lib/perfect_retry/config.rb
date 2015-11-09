@@ -14,15 +14,18 @@ class PerfectRetry
       case log_level
       when Fixnum
         logger.level = log_level
+        return
       when String, Symbol
         if int = Logger::SEV_LABEL.index(log_level.to_s.upcase)
           logger.level = int
-        else
-          raise "Unknown log level '#{log_level}'(#{log_level.class})"
+          return
         end
-      else
-        raise "Unknown log level '#{log_level}'(#{log_level.class})"
+      when nil
+        # Don't touch when nil
+        return
       end
+
+      raise "Unknown log level '#{log_level}'(#{log_level.class})"
     end
 
     def sleep_sec(count)

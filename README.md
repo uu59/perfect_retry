@@ -42,7 +42,7 @@ PerfectRetry.register(:timeout_handling) do |config|
   # default: Logger.new(STDERR)
   config.logger = Logger.new("/var/log/agent.log")
 
-  # Logger's log level.
+  # Logger's log level. Don't change that if `nil` is given. That is useful for pre-configured logger set.
   # default: :info
   config.log_level = :debug
 

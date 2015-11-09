@@ -8,6 +8,13 @@ describe PerfectRetry::Config do
 
     subject { config.set_log_level }
 
+    context "nil" do
+      let(:level) { nil }
+
+      it { expect{ subject }.to_not raise_error }
+      it { subject; expect(config.logger.level).to eq logger.level }
+    end
+
     context "Fixnum" do
       let(:level) { 2 }
 
