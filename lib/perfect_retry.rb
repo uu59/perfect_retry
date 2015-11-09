@@ -55,6 +55,10 @@ class PerfectRetry
     rescue *config.dont_rescues => e
       raise e
     rescue *config.rescues => e
+      e.backtrace.each do |line|
+        config.logger.debug line
+      end
+
       if should_retry?(count)
         count += 1
         config.logger.warn "[#{count}/#{config.limit || "Infinitiy"}] Retrying after #{config.sleep_sec(count)} seconds. Ocurred: #{e}(#{e.class})"

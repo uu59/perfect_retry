@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe PerfectRetry do
+  def mute_logging(logger)
+    allow(logger).to receive(:warn)
+    allow(logger).to receive(:debug)
+  end
+
   describe "register config" do
     after { PerfectRetry.deregister_all }
 
@@ -132,6 +137,7 @@ describe PerfectRetry do
       before do
         PerfectRetry.register(:no_retry) do |conf|
           conf.limit = 0
+          conf.logger = Logger.new(File::NULL)
         end
       end
 
@@ -160,6 +166,7 @@ describe PerfectRetry do
       let(:error_type) { StandardError }
 
       before do
+        mute_logging(pr.config.logger)
         pr.config.sleep = lambda{|n| 0}
       end
 
@@ -199,6 +206,10 @@ describe PerfectRetry do
       end
 
       describe "log message content" do
+        before do
+          mute_logging(pr.config.logger)
+        end
+
         after { expect { subject }.to raise_error(PerfectRetry::TooManyRetry) }
 
         it "exception message" do
@@ -217,6 +228,11 @@ describe PerfectRetry do
           pr.config.limit.times do |n|
             expect(pr.config.logger).to receive(:warn).with(/\[#{n + 1}\/#{pr.config.limit}\]/)
           end
+        end
+
+        it "backgrace" do
+
+          expect(pr.config.logger).to receive(:debug).with(/`with_retry'/).at_least(1)
         end
       end
     end
