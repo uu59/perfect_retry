@@ -42,6 +42,10 @@ PerfectRetry.register(:timeout_handling) do |config|
   # default: Logger.new(STDERR)
   config.logger = Logger.new("/var/log/agent.log")
 
+  # Logger's log level.
+  # default: :info
+  config.log_level = :debug
+
   # Ensure block. Call this block after with_retry block finished with and without any errors.
   # default: proc {}
   config.ensure = proc { puts "finished" }
