@@ -1,3 +1,8 @@
+# 0.3.0 2015-11-09
+
+- [enhancement] Logging backtrace as debug level. [#2](https://github.com/uu59/perfect_retry/pull/2)
+- [enhancement] Add `log_level` option(default: warn) [#2](https://github.com/uu59/perfect_retry/pull/2)
+
 # 0.2.0 2015-11-09
 
 - [enhancement] Add `dont_rescues` option.
