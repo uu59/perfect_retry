@@ -11,6 +11,7 @@ class PerfectRetry
     rescues: [StandardError],
     dont_rescues: [],
     logger: Logger.new(STDERR),
+    log_level: :info,
     sleep: lambda{|n| n ** 2},
     ensure: lambda{},
   }.freeze
@@ -42,6 +43,7 @@ class PerfectRetry
   def initialize(config_key = nil, &block)
     @config = REGISTERED_CONFIG[config_key] || default_config
     block.call(@config) if block_given?
+    @config.set_log_level
   end
 
   def default_config
@@ -55,6 +57,10 @@ class PerfectRetry
     rescue *config.dont_rescues => e
       raise e
     rescue *config.rescues => e
+      e.backtrace.each do |line|
+        config.logger.debug line
+      end
+
       if should_retry?(count)
         count += 1
         config.logger.warn "[#{count}/#{config.limit || "Infinitiy"}] Retrying after #{config.sleep_sec(count)} seconds. Ocurred: #{e}(#{e.class})"

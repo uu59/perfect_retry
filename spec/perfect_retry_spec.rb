@@ -21,6 +21,24 @@ describe PerfectRetry do
     end
   end
 
+  describe "set log level" do
+    let(:config) { PerfectRetry.registered_config(:test) }
+
+    before { 
+      PerfectRetry.register(:test){|config| }
+    }
+
+    it "call by PerfectRetry.new" do
+      expect(config).to receive(:set_log_level)
+      PerfectRetry.new(:test)
+    end
+
+    it "call by PerfectRetry.with_retry" do
+      expect(config).to receive(:set_log_level)
+      PerfectRetry.with_retry(:test) {}
+    end
+  end
+
   describe "#initialize" do
     it "use default without arguments" do
       pr = PerfectRetry.new
@@ -199,6 +217,11 @@ describe PerfectRetry do
       end
 
       describe "log message content" do
+        before do
+          allow(pr.config.logger).to receive(:warn)
+          allow(pr.config.logger).to receive(:debug)
+        end
+
         after { expect { subject }.to raise_error(PerfectRetry::TooManyRetry) }
 
         it "exception message" do
@@ -217,6 +240,10 @@ describe PerfectRetry do
           pr.config.limit.times do |n|
             expect(pr.config.logger).to receive(:warn).with(/\[#{n + 1}\/#{pr.config.limit}\]/)
           end
+        end
+
+        it "backtrace" do
+          expect(pr.config.logger).to receive(:debug).with(/`with_retry'/).at_least(1)
         end
       end
     end
