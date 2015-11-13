@@ -11,6 +11,11 @@ class PerfectRetry
     end
 
     def set_log_level
+      unless logger.respond_to?(:level=)
+        logger.warn("Ignore log_level setting because your logger don't have `level=` method. Info: `config.log_level = nil` will not try to change log level.")
+        return
+      end
+
       case log_level
       when Fixnum
         logger.level = log_level
