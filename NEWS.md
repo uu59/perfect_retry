@@ -1,3 +1,7 @@
+# 0.3.1 2015-11-13
+
+- [fixed] Ignore `log_level` config when logger doesn't have `level=` method [#3](https://github.com/uu59/perfect_retry/pull/3)
+
 # 0.3.0 2015-11-09
 
 - [enhancement] Logging backtrace as debug level. [#2](https://github.com/uu59/perfect_retry/pull/2)
