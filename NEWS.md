@@ -1,3 +1,7 @@
+# 0.3.2 2015-11-16
+
+- [fixed] Don't warn if `log_level` is nil and logger doesn't have `level=` method.
+
 # 0.3.1 2015-11-13
 
 - [fixed] Ignore `log_level` config when logger doesn't have `level=` method [#3](https://github.com/uu59/perfect_retry/pull/3)
