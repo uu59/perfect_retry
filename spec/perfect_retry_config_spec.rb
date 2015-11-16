@@ -9,12 +9,24 @@ describe PerfectRetry::Config do
     subject { config.set_log_level }
 
     context "logger doesn't have level= method" do
-      let(:level) { :info }
       before { logger.instance_eval { undef :level= } }
 
-      it do
-        expect(logger).to receive(:warn).with(/Ignore log_level/)
-        subject()
+      context "log_level :info" do
+        let(:level) { :info }
+
+        it "warn" do
+          expect(logger).to receive(:warn).with(/Ignore log_level/)
+          subject()
+        end
+      end
+
+      context "log_level nil" do
+        let(:level) { nil }
+
+        it "Don't logging" do
+          expect(logger).to_not receive(:warn)
+          subject
+        end
       end
     end
 
