@@ -111,6 +111,8 @@ end
 
 ## Installation
 
+This gem is following [semver](http://semver.org/). Any "next" major version up will possibly change default parameter, behavior, etc. If you want to keep "current" behavior, fix your major version such `gem "perfect_retry", "~> 0.3.0"`.
+
 Add this line to your application's Gemfile:
 
 ```ruby
