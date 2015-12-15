@@ -11,7 +11,7 @@ class PerfectRetry
     rescues: [StandardError],
     dont_rescues: [],
     logger: Logger.new(STDERR),
-    log_level: :info,
+    log_level: :info, # CHANGE(1.0): to be `nil`
     sleep: lambda{|n| n ** 2},
     ensure: lambda{},
   }.freeze
