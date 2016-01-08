@@ -12,7 +12,7 @@ class PerfectRetry
     dont_rescues: [],
     logger: Logger.new(STDERR),
     log_level: :info, # CHANGE(1.0): to be `nil`
-    sleep: lambda{|n| n ** 2},
+    sleep: lambda{|n| n ** 2}, # CHANGE(1.0): to be exponential backoff algorithm
     ensure: lambda{},
   }.freeze
 
