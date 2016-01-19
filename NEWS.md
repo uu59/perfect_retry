@@ -1,3 +1,7 @@
+# 0.4.0 2016-01-19
+
+- [enhancement] Add `PerfectRetry.disable!` and `PerfectRetry.enable!` for testing. [#5](https://github.com/uu59/perfect_retry/pull/5)
+
 # 0.3.2 2015-11-16
 
 - [fixed] Don't warn if `log_level` is nil and logger doesn't have `level=` method.
