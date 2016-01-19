@@ -38,6 +38,18 @@ class PerfectRetry
     REGISTERED_CONFIG.clear
   end
 
+  def self.disable!
+    @disabled = true
+  end
+
+  def self.enable!
+    @disabled = false
+  end
+
+  def self.disabled?
+    @disabled.nil? ? false : @disabled
+  end
+
   attr_reader :config
 
   def initialize(config_key = nil, &block)
@@ -51,6 +63,8 @@ class PerfectRetry
   end
 
   def with_retry(&block)
+    return block.call(0) if PerfectRetry.disabled?
+
     count = 0
     begin
       retry_with_catch(count, &block)
