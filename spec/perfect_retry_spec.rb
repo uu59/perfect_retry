@@ -21,6 +21,35 @@ describe PerfectRetry do
     end
   end
 
+  describe "disable! and enable!" do
+    after { PerfectRetry.enable! }
+
+    it "Don't rescue, retry, etc after call disable!" do
+      PerfectRetry.disable!
+
+      expect do
+        PerfectRetry.with_retry do
+          raise "foo"
+        end
+      end.to raise_error(StandardError, /foo/)
+    end
+
+    it "Restore for enable!" do
+      PerfectRetry.disable!
+      PerfectRetry.enable!
+
+      retryer = PerfectRetry.new do |config|
+        config.limit = 0
+      end
+
+      expect do
+        retryer.with_retry do
+          raise "foo"
+        end
+      end.to raise_error(PerfectRetry::TooManyRetry)
+    end
+  end
+
   describe "set log level" do
     let(:config) { PerfectRetry.registered_config(:test) }
 
