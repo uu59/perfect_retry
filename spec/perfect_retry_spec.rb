@@ -276,5 +276,68 @@ describe PerfectRetry do
         end
       end
     end
+
+    describe "raise_original_error" do
+      let(:pr) { PerfectRetry.new }
+      let(:original_error) { StandardError.new("original error") }
+
+      before do
+        pr.config.limit = 0
+        pr.config.raise_original_error = raise_original_error
+      end
+
+      subject {
+        pr.with_retry { raise original_error }
+      }
+
+      context "true" do
+        let(:raise_original_error) { true }
+
+        it "raise original error instead of TooManyRetry" do
+          expect { subject }.to raise_error(original_error)
+        end
+      end
+
+      context "false" do
+        let(:raise_original_error) { false }
+
+        it "raise TooManyRetry" do
+          expect { subject }.to raise_error(PerfectRetry::TooManyRetry)
+        end
+      end
+    end
+
+    describe "prefer_original_backtrace" do
+      let(:pr) { PerfectRetry.new }
+
+      before do
+        pr.config.limit = 0
+        pr.config.prefer_original_backtrace = prefer_original_backtrace
+      end
+
+      subject {
+        begin
+          pr.with_retry { raise "error" }
+        rescue => e
+          e.backtrace
+        end
+      }
+
+      context "true" do
+        let(:prefer_original_backtrace) { true }
+
+        it "Raised from invoked with_retry method location" do
+          expect(subject.first).to match(/#{__FILE__}/)
+        end
+      end
+
+      context "false" do
+        let(:prefer_original_backtrace) { false }
+
+        it "Raised from PerfectRetry internally" do
+          expect(subject.first).to match(%r|/lib/perfect_retry\.rb|)
+        end
+      end
+    end
   end
 end
