@@ -1,3 +1,7 @@
+# 0.5.0 2016-04-14
+
+- [enhancement] Add `prefer_original_backtrace` and `raise_original_error` options. [#6](https://github.com/uu59/perfect_retry/pull/6)
+
 # 0.4.0 2016-01-19
 
 - [enhancement] Add `PerfectRetry.disable!` and `PerfectRetry.enable!` for testing. [#5](https://github.com/uu59/perfect_retry/pull/5)
