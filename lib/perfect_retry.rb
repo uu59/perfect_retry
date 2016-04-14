@@ -14,6 +14,8 @@ class PerfectRetry
     log_level: :info, # CHANGE(1.0): to be `nil`
     sleep: lambda{|n| n ** 2}, # CHANGE(1.0): to be exponential backoff algorithm
     ensure: lambda{},
+    raise_original_error: false, # false for TooManyRetry, true for original error
+    prefer_original_backtrace: false, # CHANGE(1.0): to be `true`
   }.freeze
 
   def self.with_retry(config_key = nil, &block)
@@ -82,7 +84,15 @@ class PerfectRetry
         retry
       end
 
-      raise TooManyRetry.new("too many retry (#{config.limit} times)")
+      if config.raise_original_error
+        raise e
+      else
+        error = TooManyRetry.new("too many retry (#{config.limit} times)")
+        if config.prefer_original_backtrace
+          error.set_backtrace(e.backtrace)
+        end
+        raise error
+      end
     ensure
       config.ensure.call
     end

@@ -49,6 +49,15 @@ PerfectRetry.register(:timeout_handling) do |config|
   # Ensure block. Call this block after with_retry block finished with and without any errors.
   # default: proc {}
   config.ensure = proc { puts "finished" }
+
+  # (v0.5) Raise original error when too many retried (if true). Otherwise PerfectRetry::TooManyRetry raised (if false).
+  # default: false
+  config.raise_original_error = true
+
+  # (v0.5) Raised exception has original backtrace (if true). Otherwise PerfectRetry internally backtrace (if false).
+  # If raise_original_error = true, this option do nothing.
+  # default: false
+  config.prefer_original_backtrace = false
 end
 
 # in main.rb
