@@ -17,7 +17,7 @@ class PerfectRetry
       end
 
       case log_level
-      when Fixnum
+      when Integer
         logger.level = log_level
         return
       when String, Symbol
