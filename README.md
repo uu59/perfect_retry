@@ -22,7 +22,7 @@ require "timeout"
 
 PerfectRetry.register(:timeout_handling) do |config|
   # Try 4 times retry.
-  # default: 3
+  # default: 5
   config.limit = 4
 
   # Rescue these error in a block.
